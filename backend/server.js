@@ -219,6 +219,30 @@ app.post('/api/auth/login', (req, res) => {
   });
 });
 
+app.post('/api/auth/register', (req, res) => {
+  const { name, email, password } = req.body;
+  if (!name || !email || !password) {
+    return res.status(400).json({ status: 'error', message: 'Name, email, and password are required' });
+  }
+
+  db.get('SELECT * FROM users WHERE email = ?', [email], (err, row) => {
+    if (err) return res.status(500).json({ status: 'error', message: 'Database error' });
+    if (row) return res.status(400).json({ status: 'error', message: 'Email is already registered' });
+
+    const hashedPassword = bcrypt.hashSync(password, 10);
+    db.run('INSERT INTO users (email, password, name) VALUES (?, ?, ?)', [email, hashedPassword, name], function (err) {
+      if (err) return res.status(500).json({ status: 'error', message: 'Failed to create user account' });
+
+      const token = jwt.sign({ id: this.lastID, email: email, name: name }, JWT_SECRET, { expiresIn: '24h' });
+      res.json({
+        status: 'ok',
+        token: token,
+        user: { id: this.lastID, email: email, name: name }
+      });
+    });
+  });
+});
+
 // --- USER SETTINGS ROUTES ---
 app.get('/api/user/profile', authenticateToken, (req, res) => {
   db.get('SELECT id, email, name FROM users WHERE id = ?', [req.user.id], (err, user) => {

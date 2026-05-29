@@ -9,6 +9,8 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
 } from 'recharts';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
 const defaultLocations = {
   'Karnataka': ['Bangalore', 'Kolar', 'Mysore', 'Mandya', 'Chitradurga', 'Belgaum', 'Dharwad', 'Shimoga', 'Tumkur', 'Hassan'],
   'Maharashtra': ['Pune', 'Nagpur', 'Nashik', 'Mumbai', 'Aurangabad', 'Solapur', 'Kolhapur', 'Jalgaon', 'Ahmednagar'],
@@ -511,7 +513,7 @@ export default function Dashboard({ user, onLogout }) {
     setProfileError('');
     try {
       const token = localStorage.getItem('krishi_token');
-      const response = await fetch('http://localhost:3000/api/user/profile', {
+      const response = await fetch(`${API_URL}/api/user/profile`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -551,7 +553,7 @@ export default function Dashboard({ user, onLogout }) {
     setPasswordLoading(true);
     try {
       const token = localStorage.getItem('krishi_token');
-      const response = await fetch('http://localhost:3000/api/user/change-password', {
+      const response = await fetch(`${API_URL}/api/user/change-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -649,7 +651,7 @@ export default function Dashboard({ user, onLogout }) {
   const fetchLocations = async () => {
     setLoadingLocations(true);
     try {
-      const response = await fetch('http://localhost:3000/api/locations');
+      const response = await fetch(`${API_URL}/api/locations`);
       const data = await response.json();
       if (data.status === 'ok' && Object.keys(data.locations).length > 0) {
         setLocations(data.locations);
@@ -686,7 +688,7 @@ export default function Dashboard({ user, onLogout }) {
     setWeatherLoading(true);
     try {
       const token = localStorage.getItem('krishi_token');
-      const response = await fetch(`http://localhost:3000/api/weather?q=${city}`, {
+      const response = await fetch(`${API_URL}/api/weather?q=${city}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.status === 401 || response.status === 403) {
@@ -706,7 +708,7 @@ export default function Dashboard({ user, onLogout }) {
 
   const fetchMandiTicker = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/api/mandi-prices?date=${new Date().toISOString().split('T')[0]}`);
+      const response = await fetch(`${API_URL}/api/mandi-prices?date=${new Date().toISOString().split('T')[0]}`);
       const data = await response.json();
       if (data.status === 'ok' && data.records && data.records.length > 0) {
         const uniqueCrops = {};
@@ -740,7 +742,7 @@ export default function Dashboard({ user, onLogout }) {
     const params = customParams || predictForm;
     try {
       const token = localStorage.getItem('krishi_token');
-      const response = await fetch('http://localhost:3000/api/predict-risk', {
+      const response = await fetch(`${API_URL}/api/predict-risk`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -789,7 +791,7 @@ export default function Dashboard({ user, onLogout }) {
     setFinderError('');
     try {
       const token = localStorage.getItem('krishi_token');
-      const response = await fetch('http://localhost:3000/api/recommend-crop', {
+      const response = await fetch(`${API_URL}/api/recommend-crop`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -820,7 +822,7 @@ export default function Dashboard({ user, onLogout }) {
     setMandiSearchQuery(''); 
     try {
       const token = localStorage.getItem('krishi_token');
-      const response = await fetch(`http://localhost:3000/api/mandi-prices?date=${mandiForm.date}&crop=${mandiForm.crop}&state=${mandiForm.state}&district=${mandiForm.district}`, {
+      const response = await fetch(`${API_URL}/api/mandi-prices?date=${mandiForm.date}&crop=${mandiForm.crop}&state=${mandiForm.state}&district=${mandiForm.district}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.status === 401 || response.status === 403) {
@@ -844,7 +846,7 @@ export default function Dashboard({ user, onLogout }) {
     setHistoryLoading(true);
     try {
       const token = localStorage.getItem('krishi_token');
-      const response = await fetch('http://localhost:3000/api/history', {
+      const response = await fetch(`${API_URL}/api/history`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.status === 401 || response.status === 403) {
@@ -865,7 +867,7 @@ export default function Dashboard({ user, onLogout }) {
   const fetchDiseaseHistory = async () => {
     try {
       const token = localStorage.getItem('krishi_token');
-      const response = await fetch('http://localhost:3000/api/disease-history', {
+      const response = await fetch(`${API_URL}/api/disease-history`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.status === 401 || response.status === 403) {
@@ -909,7 +911,7 @@ export default function Dashboard({ user, onLogout }) {
     setDiseaseError('');
     try {
       const token = localStorage.getItem('krishi_token');
-      const response = await fetch('http://localhost:3000/api/detect-disease', {
+      const response = await fetch(`${API_URL}/api/detect-disease`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -944,7 +946,7 @@ export default function Dashboard({ user, onLogout }) {
     setMedicineError('');
     try {
       const token = localStorage.getItem('krishi_token');
-      const response = await fetch('http://localhost:3000/api/detect-medicine', {
+      const response = await fetch(`${API_URL}/api/detect-medicine`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -976,7 +978,7 @@ export default function Dashboard({ user, onLogout }) {
     setFertilizerError('');
     try {
       const token = localStorage.getItem('krishi_token');
-      const response = await fetch('http://localhost:3000/api/predict-fertilizer', {
+      const response = await fetch(`${API_URL}/api/predict-fertilizer`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

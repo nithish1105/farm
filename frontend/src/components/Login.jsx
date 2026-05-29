@@ -1,29 +1,48 @@
 import React, { useState } from 'react';
-import { Sprout, Lock, Mail, ChevronRight, AlertCircle, HelpCircle } from 'lucide-react';
+import { Sprout, Lock, Mail, ChevronRight, AlertCircle, HelpCircle, User } from 'lucide-react';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export default function Login({ onLoginSuccess }) {
+  const [isRegister, setIsRegister] = useState(false);
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !password) {
-      setError('Please fill in all fields.');
-      return;
+    if (isRegister) {
+      if (!name || !email || !password || !confirmPassword) {
+        setError('Please fill in all fields.');
+        return;
+      }
+      if (password !== confirmPassword) {
+        setError('Passwords do not match.');
+        return;
+      }
+    } else {
+      if (!email || !password) {
+        setError('Please fill in all fields.');
+        return;
+      }
     }
 
     setError('');
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3000/api/auth/login', {
+      const endpoint = isRegister ? `${API_URL}/api/auth/register` : `${API_URL}/api/auth/login`;
+      const bodyPayload = isRegister ? { name, email, password } : { email, password };
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(bodyPayload),
       });
 
       const data = await response.json();
@@ -33,7 +52,7 @@ export default function Login({ onLoginSuccess }) {
         localStorage.setItem('krishi_user', JSON.stringify(data.user));
         onLoginSuccess(data.user);
       } else {
-        setError(data.message || 'Invalid credentials. Please try again.');
+        setError(data.message || (isRegister ? 'Registration failed. Please try again.' : 'Invalid credentials. Please try again.'));
       }
     } catch (err) {
       console.error(err);
@@ -71,6 +90,24 @@ export default function Login({ onLoginSuccess }) {
         )}
 
         <form onSubmit={handleSubmit} style={styles.form}>
+          {isRegister && (
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>Full Name</label>
+              <div style={styles.inputWrapper}>
+                <User size={18} style={styles.inputIcon} />
+                <input
+                  type="text"
+                  placeholder="Enter your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="form-input"
+                  style={{ paddingLeft: '44px' }}
+                  required
+                />
+              </div>
+            </div>
+          )}
+
           <div style={styles.inputGroup}>
             <label style={styles.label}>Email Address</label>
             <div style={styles.inputWrapper}>
@@ -103,27 +140,68 @@ export default function Login({ onLoginSuccess }) {
             </div>
           </div>
 
+          {isRegister && (
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>Confirm Password</label>
+              <div style={styles.inputWrapper}>
+                <Lock size={18} style={styles.inputIcon} />
+                <input
+                  type="password"
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="form-input"
+                  style={{ paddingLeft: '44px' }}
+                  required
+                />
+              </div>
+            </div>
+          )}
+
           <button
             type="submit"
             className="btn-primary"
             style={{ width: '100%', marginTop: '8px', padding: '14px' }}
             disabled={loading}
           >
-            {loading ? 'Verifying...' : 'Sign In to Farm Portal'}
+            {loading ? (isRegister ? 'Creating Account...' : 'Verifying...') : (isRegister ? 'Create Free Account' : 'Sign In to Farm Portal')}
             {!loading && <ChevronRight size={18} />}
           </button>
         </form>
 
-        <div style={styles.demoBadge} onClick={autofillDemo}>
-          <div style={styles.demoBadgeHeader}>
-            <HelpCircle size={16} color="#f57c00" />
-            <span style={styles.demoBadgeTitle}>Click here to Autofill Demo Credentials</span>
-          </div>
-          <p style={styles.demoBadgeText}>
-            <strong>Email:</strong> gmaildemo@gmail.com <br />
-            <strong>Password:</strong> demo@1234
-          </p>
+        <div style={{ textAlign: 'center', marginTop: '4px' }}>
+          <button 
+            type="button"
+            onClick={() => {
+              setIsRegister(!isRegister);
+              setError('');
+            }}
+            style={{ 
+              background: 'none', 
+              border: 'none', 
+              color: '#2e7d32', 
+              fontSize: '0.88rem', 
+              fontWeight: '700', 
+              textDecoration: 'underline', 
+              cursor: 'pointer' 
+            }}
+          >
+            {isRegister ? 'Already have an account? Sign In' : "Don't have an account? Register here"}
+          </button>
         </div>
+
+        {!isRegister && (
+          <div style={styles.demoBadge} onClick={autofillDemo}>
+            <div style={styles.demoBadgeHeader}>
+              <HelpCircle size={16} color="#f57c00" />
+              <span style={styles.demoBadgeTitle}>Click here to Autofill Demo Credentials</span>
+            </div>
+            <p style={styles.demoBadgeText}>
+              <strong>Email:</strong> gmaildemo@gmail.com <br />
+              <strong>Password:</strong> demo@1234
+            </p>
+          </div>
+        )}
         
         <div style={styles.footer}>
           <p>Made with ❤️ for Indian Agriculture</p>
