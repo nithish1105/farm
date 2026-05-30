@@ -1426,7 +1426,7 @@ export default function Dashboard({ user, onLogout }) {
                     <div className="glass-panel" style={styles.resultCard}>
                       
                       {/* Price Crash warning alerts */}
-                      {predictResult.risk_breakdown.market_supply_saturation.includes('High') && (
+                      {predictResult.risk_breakdown?.market_supply_saturation?.includes('High') && (
                         <div style={styles.warningAlertBanner}>
                           <AlertTriangle size={20} color="#d84315" />
                           <div>

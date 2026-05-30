@@ -770,7 +770,8 @@ app.post('/api/predict-risk', authenticateToken, async (req, res) => {
       risk_breakdown: {
         soil_suitability_risk: soilRisk > 0.5 ? 'High' : 'Low',
         weather_precipitation_risk: weatherRisk > 0.5 ? 'High' : (weatherRisk > 0.2 ? 'Medium' : 'Low'),
-        market_price_volatility: cropInfo.volatility
+        market_price_volatility: cropInfo.volatility,
+        market_supply_saturation: (stock_level || 'Medium') === 'High' ? 'High' : 'Low'
       },
       economics_per_acre: {
         estimated_investment_inr: cropInfo.investmentPerAcre,
