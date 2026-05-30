@@ -12,7 +12,13 @@ export default function App() {
     const token = localStorage.getItem('krishi_token');
     
     if (savedUser && token) {
-      setUser(JSON.parse(savedUser));
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (e) {
+        console.error("Failed to parse saved user from localStorage:", e);
+        localStorage.removeItem('krishi_user');
+        localStorage.removeItem('krishi_token');
+      }
     }
     setCheckingAuth(false);
   }, []);
